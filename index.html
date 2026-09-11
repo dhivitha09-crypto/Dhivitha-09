@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scheme Finder — UI Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0D1310;
+    --surface: #161D1A;
+    --surface-2: #1F2822;
+    --line: #2A342E;
+    --text: #EDEAE1;
+    --text-dim: #9CA6A0;
+    --gold: #E3B23C;
+    --gold-dim: #7A6535;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .app{max-width:1300px;margin:0 auto;padding:28px 24px 80px;}
+
+  /* Top bar */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .brand{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:28px;
+    letter-spacing:0.2px;
+  }
+  .brand span{color:var(--gold);}
+  .search{
+    flex:1;
+    max-width:380px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:10px 18px;
+  }
+  .search input{
+    background:none;
+    border:none;
+    outline:none;
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    width:100%;
+  }
+  .search input::placeholder{color:var(--text-dim);}
+  .search svg{flex-shrink:0;opacity:0.7;}
+
+  .tagline{
+    color:var(--text-dim);
+    font-size:15px;
+    margin:6px 0 28px;
+    max-width:520px;
+    line-height:1.5;
+  }
+
+  /* Language picker */
+  .lang-overlay{
+    position:fixed;inset:0;
+    background:rgba(10,14,12,0.92);
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:50;
+  }
+  .lang-box{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:36px 32px;
+    text-align:center;
+    max-width:340px;
+  }
+  .lang-title{font-family:'Fraunces',serif;font-size:19px;margin-bottom:22px;line-height:1.4;}
+  .lang-buttons{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .lang-btn{
+    font-family:'Inter';font-size:15px;font-weight:600;
+    background:var(--surface-2);
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:12px 22px;
+    cursor:pointer;
+  }
+  .lang-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .lang-switch{
+    font-family:'Inter';font-size:12px;font-weight:600;
+    background:var(--surface-2);color:var(--text-dim);
+    border:1px solid var(--line);border-radius:8px;
+    padding:8px 12px;cursor:pointer;
+  }
+  .lang-switch:hover{color:var(--gold);border-color:var(--gold-dim);}
+
+  /* Grid of scheme cards */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:24px;
+  }
+  .card{
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    aspect-ratio:16/10;
+    cursor:pointer;
+    border:1px solid var(--line);
+    transition:transform 0.15s ease, border-color 0.15s ease;
+  }
+  .card:hover{transform:translateY(-3px);border-color:var(--gold-dim);}
+  .card-art{
+    position:absolute;inset:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .card-art svg{width:56px;height:56px;}
+  .card-art img{width:100%;height:100%;object-fit:cover;}
+  .fallback-icon{align-items:center;justify-content:center;}
+  .fallback-icon svg{width:70px;height:70px;}
+  .detail-icon img{width:44px;height:44px;object-fit:contain;background:#fff;border-radius:8px;padding:4px;}
+  .fallback-icon-detail{align-items:center;justify-content:center;}
+  .fallback-icon-detail svg{width:38px;height:38px;}
+  .card-overlay{
+    position:absolute;left:0;right:0;bottom:0;
+    padding:14px 14px 12px;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,0.72) 70%);
+  }
+  .card-tag{
+    display:inline-block;
+    font-size:11px;
+    color:var(--gold);
+    background:rgba(227,178,60,0.14);
+    border:1px solid var(--gold-dim);
+    border-radius:20px;
+    padding:2px 9px;
+    margin-bottom:6px;
+  }
+  .card-title{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:17px;
+    line-height:1.25;
+  }
+
+  /* Detail view */
+  .detail{
+    display:none;
+    animation:fadein 0.2s ease;
+  }
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .back{
+    display:inline-flex;align-items:center;gap:8px;
+    color:var(--text-dim);
+    background:none;border:none;font-family:'Inter';font-size:14px;
+    cursor:pointer;margin-bottom:20px;padding:0;
+  }
+  .back:hover{color:var(--text);}
+  .detail-hero{
+    display:flex;gap:20px;align-items:center;
+    padding:24px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:16px;
+    margin-bottom:22px;
+  }
+  .detail-icon{
+    width:72px;height:72px;border-radius:14px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .detail-icon svg{width:38px;height:38px;}
+  .detail-title{font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin:0 0 8px;}
+  .detail-tags{display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{
+    font-size:12px;color:var(--text-dim);
+    border:1px solid var(--line);
+    border-radius:20px;padding:3px 10px;
+  }
+  .pill.verified{color:var(--gold);border-color:var(--gold-dim);}
+
+  .sections{display:grid;gap:14px;}
+  .official-link{
+    display:inline-block;
+    text-align:center;
+    font-family:'Inter';font-weight:600;font-size:14px;
+    color:#0D1310;
+    background:var(--gold);
+    border-radius:10px;
+    padding:14px 20px;
+    text-decoration:none;
+    margin-top:4px;
+  }
+  .official-link:hover{opacity:0.9;}
+  .section{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 20px;
+  }
+  .section h3{
+    font-family:'Inter';font-weight:600;font-size:14px;
+    margin:0 0 10px;color:var(--text);
+  }
+  .section p, .section li{
+    font-size:14px;line-height:1.6;color:var(--text-dim);margin:0;
+  }
+  .section ul{margin:0;padding-left:18px;}
+  .section li{margin-bottom:4px;}
+  .section ol{margin:0;padding-left:18px;}
+  .section ol li{margin-bottom:6px;}
+
+  @media (max-width:560px){
+    .topbar{flex-direction:column;align-items:flex-start;}
+    .search{max-width:100%;width:100%;}
+    .detail-hero{flex-direction:column;text-align:center;}
+    .grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LANGUAGE PICKER (shown once) -->
+  <div id="langPicker" class="lang-overlay">
+    <div class="lang-box">
+      <div class="lang-title">Choose your language / మీ భాషను ఎంచుకోండి</div>
+      <div class="lang-buttons">
+        <button class="lang-btn" onclick="setLang('en')">English</button>
+        <button class="lang-btn" onclick="setLang('te')">తెలుగు</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME VIEW -->
+  <div id="home" style="display:none">
+    <div class="topbar">
+      <div class="brand">Yojana<span>Setu</span></div>
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA6A0" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchBox" placeholder="Search schemes — e.g. housing, farmers, health" oninput="filterSchemes(this.value)" />
+      </div>
+      <button class="lang-switch" onclick="openLangPicker()" id="langSwitchBtn">EN</button>
+    </div>
+    <p class="tagline" id="tagline">Every active government scheme, explained simply. Tap a scheme to see who qualifies, what you need, and how to apply.</p>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- DETAIL VIEW -->
+  <div id="detail" class="detail"></div>
+
+</div>
+
+<script>
+// Fallback icon shown if a scheme's logo image fails to load
+const FALLBACK_ICON = `<svg viewBox="0 0 24 24" fill="none" stroke="#EDEAE1" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>`;
+
+// Fixed UI labels — not AI-generated, just the two languages you need
+const UI = {
+  en: {
+    tagline: "Every active government scheme, explained simply. Tap a scheme to see who qualifies, what you need, and how to apply.",
+    search: "Search schemes — e.g. housing, farmers, health",
+    back: "All schemes",
+    eligibility: "Who is eligible",
+    documents: "Documents required",
+    benefits: "Benefits",
+    apply_online: "How to apply online",
+    apply_offline: "Where to apply offline",
+    deadline: "Deadline",
+    verified: "Last verified",
+    official_link: "Visit official website"
+  },
+  te: {
+    tagline: "అన్ని ప్రభుత్వ పథకాలు, సులభంగా వివరించబడ్డాయి. అర్హత, అవసరమైన పత్రాలు, దరఖాస్తు విధానం చూడటానికి పథకంపై నొక్కండి.",
+    search: "పథకాలను వెతకండి — ఉదా. గృహనిర్మాణం, రైతులు, ఆరోగ్యం",
+    back: "అన్ని పథకాలు",
+    eligibility: "అర్హత ఎవరికి ఉంది",
+    documents: "అవసరమైన పత్రాలు",
+    benefits: "ప్రయోజనాలు",
+    apply_online: "ఆన్‌లైన్‌లో దరఖాస్తు చేయడం ఎలా",
+    apply_offline: "ఆఫ్‌లైన్‌లో ఎక్కడ దరఖాస్తు చేయాలి",
+    deadline: "గడువు",
+    verified: "చివరిసారి నిర్ధారించినది",
+    official_link: "అధికారిక వెబ్‌సైట్‌ను సందర్శించండి"
+  }
+};
+
+let schemes = [];
+let lang = localStorage.getItem('appLang'); // 'en' | 'te' | null
+
+const grid = document.getElementById('grid');
+const home = document.getElementById('home');
+const detail = document.getElementById('detail');
+const langPicker = document.getElementById('langPicker');
+
+fetch('schemes.json')
+  .then(r => r.json())
+  .then(data => {
+    schemes = data;
+    if (lang) { applyLang(); renderGrid(schemes); home.style.display = 'block'; }
+    else { langPicker.style.display = 'flex'; }
+  })
+  .catch(err => {
+    grid.innerHTML = `<p style="color:var(--text-dim)">Couldn't load schemes.json — make sure it's in the same folder as this file.</p>`;
+    console.error(err);
+  });
+
+function setLang(code){
+  lang = code;
+  localStorage.setItem('appLang', code);
+  langPicker.style.display = 'none';
+  applyLang();
+  renderGrid(schemes);
+  home.style.display = 'block';
+}
+
+function openLangPicker(){ langPicker.style.display = 'flex'; }
+
+function applyLang(){
+  const t = UI[lang];
+  document.getElementById('tagline').textContent = t.tagline;
+  document.getElementById('searchBox').placeholder = t.search;
+  document.getElementById('langSwitchBtn').textContent = lang.toUpperCase();
+}
+
+function renderGrid(list){
+  grid.innerHTML = '';
+  list.forEach((s) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.background = `linear-gradient(155deg, ${s.color1 || '#3E7C6B'}, ${s.color2 || '#1F4239'})`;
+    card.innerHTML = `
+      <div class="card-art">
+        <img src="${s.logo}" class="logo-img" alt="">
+        <div class="fallback-icon" style="display:none">${FALLBACK_ICON}</div>
+      </div>
+      <div class="card-overlay">
+        <span class="card-tag">${s.tag}</span>
+        <div class="card-title">${s.title[lang]}</div>
+      </div>
+    `;
+    const img = card.querySelector('.logo-img');
+    img.onerror = () => {
+      img.style.display = 'none';
+      card.querySelector('.fallback-icon').style.display = 'flex';
+    };
+    card.onclick = () => showDetail(s);
+    grid.appendChild(card);
+  });
+}
+
+function filterSchemes(q){
+  q = q.trim().toLowerCase();
+  if (!q) return renderGrid(schemes);
+  renderGrid(schemes.filter(s =>
+    s.title[lang].toLowerCase().includes(q) || s.tag.toLowerCase().includes(q)
+  ));
+}
+
+function showDetail(s){
+  const t = UI[lang];
+  detail.innerHTML = `
+    <button class="back" onclick="showHome()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      ${t.back}
+    </button>
+    <div class="detail-hero">
+      <div class="detail-icon" style="background:linear-gradient(155deg, ${s.color1 || '#3E7C6B'}, ${s.color2 || '#1F4239'})">
+        <img src="${s.logo}" class="logo-img-detail" alt="">
+        <div class="fallback-icon-detail" style="display:none">${FALLBACK_ICON}</div>
+      </div>
+      <div>
+        <div class="detail-title">${s.title[lang]}</div>
+        <div class="detail-tags">
+          <span class="pill">${s.tag}</span>
+          <span class="pill verified">${t.verified}: ${s.verified}</span>
+        </div>
+      </div>
+    </div>
+    <div class="sections">
+      <div class="section">
+        <h3>${t.eligibility}</h3>
+        <ul>${s.eligibility[lang].map(e=>`<li>${e}</li>`).join('')}</ul>
+      </div>
+      <div class="section">
+        <h3>${t.documents}</h3>
+        <ul>${s.documents[lang].map(d=>`<li>${d}</li>`).join('')}</ul>
+      </div>
+      <div class="section">
+        <h3>${t.benefits}</h3>
+        <p>${s.benefits[lang]}</p>
+      </div>
+      <div class="section">
+        <h3>${t.apply_online}</h3>
+        <ol>${s.apply_online[lang].map(a=>`<li>${a}</li>`).join('')}</ol>
+      </div>
+      <div class="section">
+        <h3>${t.apply_offline}</h3>
+        <p>${s.apply_offline[lang]}</p>
+      </div>
+      <div class="section">
+        <h3>${t.deadline}</h3>
+        <p>${s.deadline[lang]}</p>
+      </div>
+      ${s.official_link ? `<a href="${s.official_link}" target="_blank" rel="noopener" class="official-link">${t.official_link} →</a>` : ''}
+    </div>
+  `;
+  const img = detail.querySelector('.logo-img-detail');
+  img.onerror = () => {
+    img.style.display = 'none';
+    detail.querySelector('.fallback-icon-detail').style.display = 'flex';
+  };
+  home.style.display = 'none';
+  detail.style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+function showHome(){
+  detail.style.display = 'none';
+  home.style.display = 'block';
+}
+</script>
+</body>
+</html>
